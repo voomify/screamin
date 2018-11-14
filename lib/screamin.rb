@@ -18,6 +18,7 @@ module Screamin
       # @mutex = Mutex.new
       @cache_policy = {}
       @cache_policy_mutex = Mutex.new
+      @batch_size = Integer(ENV['VCS_BATCH_SIZE'] || DEFAULT_BATCH_SIZE)
     end
 
     def call(env)
@@ -37,8 +38,7 @@ module Screamin
     private
 
     TRACE_PATH = '/api/v1/trace'.freeze
-    VCS_HOST = (ENV['VCS_HOST'] || 'http://localhost:3000').freeze
-    BATCH_SIZE = Integer(ENV['VCS_BATCH_SIZE'] || 10).freeze
+    DEFAULT_BATCH_SIZE = 10.freeze
     SUCCESS = '200'.freeze
 
     def scrubbed_headers(env)
@@ -100,7 +100,7 @@ module Screamin
       @trace_mutex.synchronize do
         @traces.push trace
       end
-      if @traces.size > BATCH_SIZE
+      if @traces.size > @batch_size
         Thread.start do
           traces = nil
           @trace_mutex.synchronize do
@@ -113,7 +113,7 @@ module Screamin
     end
 
     def post_to_vcs(traces)
-      uri = URI("#{VCS_HOST}/#{TRACE_PATH}")
+      uri = URI("#{ENV['VCS_HOST'] || 'http://localhost:3000'}/#{TRACE_PATH}")
       req = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
       req.body = traces.to_json
       Net::HTTP.start(uri.hostname, uri.port) do |http|
