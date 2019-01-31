@@ -23,6 +23,17 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '> 2.2.2'
   spec.require_paths = ["lib"]
   # spec.extensions    = ["ext/screamin/extconf.rb"]
+  spec.add_dependency "dry-configurable", "~> 0.7.0"
+  spec.add_dependency "prefatory"
+  # These are optional runtime dependencies
+  spec.add_development_dependency "voom-presenters"
+  # Actual development depenedencies
+  spec.add_development_dependency "shotgun"
+  spec.add_development_dependency "pry"
+  spec.add_development_dependency "redis"
+  spec.add_development_dependency "dalli"
+  spec.add_development_dependency "sidekiq"
+  spec.add_development_dependency "activejob"
   spec.add_development_dependency "bundler", "~> 1.17"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rake-compiler"

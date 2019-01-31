@@ -1,0 +1,24 @@
+Voom::Presenters.define(:cache, namespace: :screamin) do
+  attach :header
+
+  page_title 'Cache'
+
+  helpers do
+    def empty_state
+      grid padding: :none do
+        column 6, padding: :none do
+          title 'Not Implemented yet'
+          image 'screamin/images/policy.svg', width: '100%'
+        end
+      end
+    end
+  end
+
+  grid do
+    column 12 do
+      empty_state
+    end
+  end
+end
+
+

@@ -1,0 +1,20 @@
+require 'screamin/helpers/app'
+
+Voom::Presenters.define(:nav, namespace: :screamin) do
+  helpers Screamin::Helpers::App
+
+  drawer do
+    menu do
+      item 'Analysis' do
+        event :click do
+          loads :analysis, app_name: app_name, env_name: env_name
+        end
+      end
+      item 'Policy' do
+        event :click do
+          loads :policy, app_name: app_name, env_name: env_name
+        end
+      end
+    end
+  end
+end

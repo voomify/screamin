@@ -1,0 +1,41 @@
+require 'screamin/helpers/app'
+
+Voom::Presenters.define(:index, namespace: :screamin) do
+  helpers Screamin::Helpers::App
+
+  attach :header
+  page_title 'Apps'
+
+  helpers do
+    def empty_state
+      grid padding: :none do
+        column 6, padding: :none do
+          title 'No apps to have Screamin cache have been added yet'
+          body "To add one, add the screamin gem to the Gemfile of an app and start it up."
+          image 'screamin/images/policy.svg', width: '100%'
+        end
+      end
+    end
+  end
+
+  grid do
+    column 12 do
+      empty_state if apps.empty?
+      apps.each do |app_name|
+        title app_name
+        list do
+          app(app_name).environments.each do |ae|
+            line do
+              title ae.name
+              event :click do
+                loads :analysis, app_name: app_name, env_name: ae.name
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
+

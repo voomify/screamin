@@ -1,0 +1,55 @@
+require 'screamin/helpers/analysis'
+
+Voom::Presenters.define(:analysis, namespace: :screamin) do
+  helpers Screamin::Helpers::Analysis
+  helpers do
+    def collect_data_tooltip
+      ["Turn on/off analysis data collection.\n\nWe strongly recommend you turn this on breifly, setup your caches and then once tuned, turn it off in production. Rinse and repeat with each release."]
+    end
+
+    def analysis_tooltip
+      ['Analysis watches a running system and collects trace data about requests that should be cached.']
+    end
+
+    def collection_disabled?
+      !collect_for_current_env?
+    end
+  end
+  attach :header
+  attach :nav
+
+  page_title do
+    grid padding: :none do
+      column 11 do
+        heading 'Analysis', level: 4 do
+          tooltip analysis_tooltip,
+                  position: :bottom
+        end
+      end
+      column 1 do
+        switch name: :collect_data, checked: collect_data?, position: :right  do
+          tooltip collect_data_tooltip
+          event :change do
+            posts command_path(:collect_data, app_name: app_name, env_name: env_name)
+          end
+        end
+      end
+    end
+  end
+
+  grid do
+    column 12 do
+      button 'Reset', id: :reset_button, position: :right do
+        tooltip "Resets current analysis data.\n\nThis is safe, meaning it does NOT reset any established cache policies."
+        event :click do
+          posts command_path(:reset_analysis_data, app_name: app_name, env_name: env_name)
+          replaces :requests, :requests
+          hide :reset_button
+        end
+      end unless analysis_empty?
+    end
+  end
+  attach :requests
+end
+
+

@@ -1,0 +1,76 @@
+require 'screamin/helpers/policy'
+
+Voom::Presenters.define(:policy, namespace: :screamin) do
+  helpers Screamin::Helpers::Policy
+
+  attach :header
+  attach :nav
+
+  page_title 'Policy'
+
+  helpers do
+    def empty_state
+      grid padding: :none do
+        column 6, padding: :none do
+          title 'No cache policy has been defined yet'
+          body "To add one, turn on [analysis](#{presenters_path(:analysis)}) and add a cache strategy."
+          image 'screamin/images/policy.svg', width: '100%'
+        end
+      end
+    end
+
+    def attributes(object, *attributes_)
+      attributes_.each do |attr|
+        body "#{attr}:#{object.send(attr)}"
+      end
+
+    end
+  end
+
+  grid do
+    column 12 do
+      if policy.version > 0
+        card do
+          title 'Policy'
+          grid padding: :none do
+            column 11 do
+              attributes(policy, :version, :last_revised_at)
+            end
+            column 1 do
+              switch name: :toggle_policy_active, checked: policy.active?, position: :right do
+                tooltip "Turn on/off the policy caching. Turning this off will STOP all caching."
+                event :change do
+                  posts command_path(:toggle_policy)
+                end
+              end
+            end
+          end
+          title 'Strategies'
+          policy.strategies.each do |_, strategy|
+            card do
+              grid padding: :none do
+                column 11 do
+                  attributes(strategy, :active)
+                  attributes(strategy.cache_key, :method, :path, :query_keys, :header_keys, :session_keys)
+                  attributes(strategy, :options)
+                end
+                column 1 do
+                  switch name: :toggle_strategy_active, checked: strategy.active?, position: :right do
+                    tooltip "Turn on/off the caching for this strategy."
+                    event :change do
+                      posts command_path(:toggle_policy_strategy, key: strategy.key)
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      else
+        empty_state
+      end
+    end
+  end
+end
+
+

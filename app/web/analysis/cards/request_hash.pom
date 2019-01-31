@@ -1,0 +1,72 @@
+require 'screamin/helpers/analysis'
+
+Voom::Presenters.define(:request_hash_card, namespace: :screamin) do
+  helpers Screamin::Helpers::Analysis
+  helpers Voom::Presenters::Helpers::Inflector
+
+  helpers do
+    def status_code
+      Integer(context[:status_code])
+    end
+
+    def request_tracking(k = key)
+      @request_tracking ||= analysis_repo.request(k)
+    end
+
+    def hash_tracking_attributes(*attt)
+      attt.map do |_attribute_|
+        "#{_attribute_}: #{hash_tracking.send(_attribute_)}"
+      end
+    end
+
+    def request_params(collection)
+      body "**#{titleize(collection)}**"
+      hash = hash_tracking.send(collection)
+      body 'none' unless hash.any?
+      hash.each do |k, qp|
+        body "#{k}:[#{qp.values.join(', ')}](#{qp.relevance})" do
+          event :click do
+            snackbar 'clicked'
+          end
+        end
+      end
+    end
+  end
+
+  attach :header
+  attach :nav
+
+  page_title "Unique Request (#{hash}) for path: [#{key}](#{presenters_path(:index)})"
+
+  grid do
+    column 12 do
+
+      card do
+        grid do
+          column 11 do
+            card do
+              title "Request(#{hash_tracking.hits})"
+              body hash_tracking_attributes(:first_at, :last_at)
+              request_params(:query_params)
+              request_params(:request_headers)
+              request_params(:session)
+              request_params(:cookies)
+            end
+            card do
+              title 'Response'
+              request_params(:response_headers)
+            end
+          end
+          column 1 do
+            body '**Cache**'
+            switch do
+              event :change do
+                snackbar 'Not Implemented yet!'
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end

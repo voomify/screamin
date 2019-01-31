@@ -1,0 +1,17 @@
+Voom::Presenters.define(:header, namespace: :screamin) do
+  page do
+    title 'Screamin - Cockpit'
+  end
+
+  header 'Screamin' do
+    nav do
+      item 'Apps' do
+        event :click do
+          loads :index
+        end
+      end
+    end
+  end
+end
+
+

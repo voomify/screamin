@@ -1,0 +1,31 @@
+require 'screamin/helpers/analysis'
+
+Voom::Presenters.define(:requests, namespace: :screamin) do
+  helpers Screamin::Helpers::Analysis
+  helpers do
+    def empty_state
+      title 'Not enough data has been collected yet to analyze!'
+      body 'Turn on analysis. Then ensure their is traffic routing to the site.'
+      grid padding: :none do
+        column 6, padding: :none do
+          image 'screamin/images/no-data.svg', width: '100%'
+        end
+      end
+    end
+  end
+  grid padding: [:top, :left, :right] do
+    column 12, padding: :none do
+      content id: :requests do
+        grid padding: :none do
+          column 12 do
+            empty_state if analysis_empty?
+            requests.each do |key|
+              attach :request_card, key: key
+            end
+          end
+        end
+      end
+    end
+  end
+end
+

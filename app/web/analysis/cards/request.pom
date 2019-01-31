@@ -1,0 +1,44 @@
+require 'screamin/helpers/analysis'
+
+Voom::Presenters.define(:request_card, namespace: :screamin) do
+  helpers Screamin::Helpers::Analysis
+  helpers do
+    def status
+      request_tracking.status.each do |status_code,hashes|
+        title "#{status_code}(#{hashes.values.map(&:hits).reduce(:+)})"
+        body hash_links(hashes, status_code)
+      end
+    end
+
+    def hash_links(hashes, status_code)
+      hashes.keys.map do |k|
+        "[#{k}](#{presenters_path(:request_hash_card, key: key,
+                                  status_code: status_code, hash: k,
+                                  app_name: app_name, env_name: env_name)})(#{hash_tracking(k,status_code).hits})"
+      end.join(', ')
+    end
+
+    def cached?
+      policy.request_strategy(request_tracking.request_method, request_tracking.path)
+    end
+  end
+
+  card do
+    grid padding: :none do
+      column 11 do
+        title "#{key}(#{request_tracking.count})"
+        status
+      end
+      column 1 do
+        body '**Cache**'
+        switch name: :cache, checked: cached? do
+          tooltip 'Adds/Removes the request method + path cache stratgey to the cache policy'
+          event :change do
+            posts command_path(:add_path_strategy, key: key, app_name: app_name, env_name: env_name)
+          end
+        end
+      end
+    end
+
+  end
+end
