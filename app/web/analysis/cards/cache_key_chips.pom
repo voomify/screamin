@@ -1,0 +1,33 @@
+require 'screamin/helpers/analysis'
+
+Voom::Presenters.define(:cache_key_chips, namespace: :screamin) do
+  helpers Screamin::Helpers::Analysis
+  ANALYSIS_TO_POLICY_COLLECTIONS = {query_params: :query_keys, request_headers: :header_keys, session: :session_keys, cookies: :cookies}
+
+  helpers do
+    def chips(collection)
+      body "**#{titleize(collection)}**"
+      hash = hash_tracking&.send(collection)
+      body 'none' unless hash&.select {|k, v| v.cache_key?}&.any?
+      hash&.each do |k, qp|
+        chip "#{k}", name: 'cache_keys[]', value: [collection, [k]].to_json do
+          icon :clear, position: :right do
+            event :click do
+              posts command_path(:remove_cache_key, key: key, status_code: status_code,
+                                 hash: hash_tracking.hash, collection: collection, param_key: k, app_name: app_name, env_name: env_name)
+              replaces "cache_key_#{collection}", :cache_key_chips, key: context['key'], status_code: context['status_code'],
+                       hash: context['hash'], app_name: app_name, env_name: env_name, collection: collection
+            end
+          end unless unique_request_cached?
+        end if yield(qp, k)
+      end
+    end
+  end
+
+  collection = context['collection'].to_sym
+  content id: "cache_key_#{collection}" do
+    chips(collection) do |qp, k|
+      unique_request_cached? ?  strategy.has_key?(collection, k) : qp.cache_key?
+    end
+  end
+end

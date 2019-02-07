@@ -4,29 +4,35 @@ Voom::Presenters.define(:request_card, namespace: :screamin) do
   helpers Screamin::Helpers::Analysis
   helpers do
     def status
-      request_tracking.status.each do |status_code,hashes|
+      (request_tracking&.status||[]).each do |status_code,hashes|
         title "#{status_code}(#{hashes.values.map(&:hits).reduce(:+)})"
-        body hash_links(hashes, status_code)
+        cached = hash_links(hashes, status_code){|hash,status_code| unique_request_cached?(hash_tracking(hash,status_code))}
+        body 'Cached:' unless cached.empty?
+        body cached
+        not_cached = hash_links(hashes, status_code){|hash,status_code| !unique_request_cached?(hash_tracking(hash,status_code))}
+        body 'NOT Cached:' unless not_cached.empty?
+        body not_cached
       end
     end
 
     def hash_links(hashes, status_code)
-      hashes.keys.map do |k|
-        "[#{k}](#{presenters_path(:request_hash_card, key: key,
+      hashes.keys.select{|k| yield(k,status_code)}.map do |k|
+        "[#{k}](#{presenters_path(:unique_request_card, key: key,
                                   status_code: status_code, hash: k,
                                   app_name: app_name, env_name: env_name)})(#{hash_tracking(k,status_code).hits})"
       end.join(', ')
     end
 
     def cached?
-      policy.request_strategy(request_tracking.request_method, request_tracking.path)
+      strategy = policy.request_strategy(request_tracking&.host, request_tracking&.request_method, request_tracking&.path)
+      strategy&.matches?(request_tracking)
     end
   end
 
   card do
     grid padding: :none do
       column 11 do
-        title "#{key}(#{request_tracking.count})"
+        title "#{key}(#{request_tracking&.count})"
         status
       end
       column 1 do
@@ -34,7 +40,7 @@ Voom::Presenters.define(:request_card, namespace: :screamin) do
         switch name: :cache, checked: cached? do
           tooltip 'Adds/Removes the request method + path cache stratgey to the cache policy'
           event :change do
-            posts command_path(:add_path_strategy, key: key, app_name: app_name, env_name: env_name)
+            posts command_path(:toggle_strategy, key: key, app_name: app_name, env_name: env_name)
           end
         end
       end

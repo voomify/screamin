@@ -7,15 +7,21 @@ module Screamin
     class Policy < Sinatra::Base
       include Storage
 
-      post '/screamin/add_path_strategy' do
-        method = params['key'][0]
-        path = params['key'][1]
-        policy_ = if params['cache']
-                    policy.add_path_strategy(method, path)
-                  else
-                    policy.remove_path_strategy(method, path)
-                  end
-        policy_repo.save!(policy_)
+      post '/screamin/toggle_strategy' do
+        domain, method, path = params['key']
+        if params['cache']
+          s = policy.add_strategy(domain, method, path)
+          if params['cache_keys']
+            cache_keys = params['cache_keys'].map do |json|
+              key, value = JSON.parse(json)
+              [key.to_sym, value]
+            end.to_h
+            s.add_cache_key(cache_keys)
+          end
+        else
+          policy.remove_strategy(domain, method, path)
+        end
+        policy_repo.save!(policy)
         content_type :json
         {messages: {snackbar: ["Strategy #{params['cache'] ? 'added to' : 'removed from'} policy"]}}.to_json
       end

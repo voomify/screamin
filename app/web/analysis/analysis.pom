@@ -21,7 +21,7 @@ Voom::Presenters.define(:analysis, namespace: :screamin) do
   page_title do
     grid padding: :none do
       column 11 do
-        heading 'Analysis', level: 4 do
+        heading "#{app_name}:#{env_name} Analysis", level: 4 do
           tooltip analysis_tooltip,
                   position: :bottom
         end

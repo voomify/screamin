@@ -18,7 +18,7 @@ module Screamin
       end
 
       def request(key)
-        storage.get(build_key(key))
+        storage.get(build_key(*key))
       end
 
       def save_analysis(key, analysis)

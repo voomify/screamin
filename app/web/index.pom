@@ -24,11 +24,11 @@ Voom::Presenters.define(:index, namespace: :screamin) do
       apps.each do |app_name|
         title app_name
         list do
-          app(app_name).environments.each do |ae|
+          app(app_name).environments.each do |app_env|
             line do
-              title ae.name
+              title app_env
               event :click do
-                loads :analysis, app_name: app_name, env_name: ae.name
+                loads :analysis, app_name: app_name, env_name: app_env
               end
             end
           end

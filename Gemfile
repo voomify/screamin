@@ -8,3 +8,4 @@ gemspec
 gem 'prefatory', path: '~/dev/rx/prefatory'
 gem 'voom-presenters', path: '~/dev/rx/presenters'
 
+gem 'redis'

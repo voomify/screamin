@@ -11,6 +11,7 @@ module Screamin
       include Helpers::Commands
       include Helpers::App
       include Helpers::Policy
+      include Voom::Presenters::Helpers::Inflector
 
       def key
         context[:key]
@@ -20,8 +21,12 @@ module Screamin
         context[:hash]
       end
 
+      def status_code
+        Integer(context[:status_code]) if context[:status_code]
+      end
+
       def hash_tracking(h = hash, sc = status_code)
-        @hash_tracking ||= request_tracking.status[sc][h]
+        (request_tracking&.status || {}).dig(sc, h)
       end
 
       def request_tracking(k = key)
@@ -42,6 +47,14 @@ module Screamin
 
       def requests
         @requests ||= analysis_repo.requests
+      end
+
+      def strategy
+        @strategy ||= policy.request_strategy(request_tracking&.host, request_tracking&.request_method, request_tracking&.path)
+      end
+
+      def unique_request_cached?(hash_tracking = self.hash_tracking)
+        strategy&.matches?(hash_tracking)
       end
     end
   end

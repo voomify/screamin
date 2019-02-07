@@ -67,7 +67,7 @@ module Screamin
     private
 
     def register_app
-      @app = Screamin::App.new(app_name).add_env(app_env)
+      @app = (app_repo(storage).app(app_name) || Screamin::App.new(app_name)).add_env(app_env)
       app_repo(storage).save!(@app)
     end
 

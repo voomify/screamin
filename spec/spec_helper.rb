@@ -1,5 +1,8 @@
 require "bundler/setup"
+ENV['RACK_ENV']='test'
 require "screamin"
+require_relative 'support/presenters'
+require 'redis'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

@@ -6,6 +6,7 @@ module Screamin
 # This data is turned into analysis by the background job
   class Trace
     attr_reader :request, :response
+
     def initialize(trace)
       @request = Request.new(trace[0])
       @response = Response.new(trace[1])
@@ -13,6 +14,10 @@ module Screamin
 
     def hash
       response.hash
+    end
+
+    def host
+      request.host
     end
 
     def path
@@ -38,6 +43,10 @@ module Screamin
 
       def path
         headers['REQUEST_PATH']
+      end
+
+      def host
+        "#{headers['SERVER_NAME']}:#{headers['SERVER_PORT']}"
       end
 
       def request_method

@@ -23,7 +23,7 @@ module Screamin
         debug @traces
         @traces.each do |trace_|
           trace = Trace.new(trace_)
-          req_key = [trace.request_method, trace.path]
+          req_key = [trace.host, trace.request_method, trace.path]
           last_analysis = analysis_repo.request(req_key)
           new_analysis = Analysis.new(last_analysis, trace)
           debug "Storing request analysis: #{new_analysis.inspect}"

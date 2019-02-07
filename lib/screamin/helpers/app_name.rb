@@ -20,7 +20,7 @@ module Screamin
       end
 
       def app_env
-        return Rails.env if defined?(Rails)
+        return Rails.env.to_s if defined?(Rails)
         app_env = Screamin.config.app.env
 
         raise Screamin::Errors::ConfigurationError, <<~EOS unless app_env

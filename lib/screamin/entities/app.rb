@@ -14,24 +14,10 @@ module Screamin
     end
 
     # Idepmpotent
-    def add_env(env)
-      @environments << Environment.new(@name, env.to_s)
+    def add_env(env_name)
+      @environments << env_name
       @environments.uniq!
       self
-    end
-
-    class Environment
-      attr_reader :app_name, :name
-
-      def initialize(app_name, env_name)
-        @app_name = app_name
-        @name = env_name
-      end
-
-      def ==(other)
-        self.app_name == other.app_name &&
-        self.name == other.name
-      end
     end
   end
 end

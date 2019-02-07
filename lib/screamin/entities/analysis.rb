@@ -5,17 +5,30 @@ module Screamin
   # Tracks all requests for analysis
   # From analysis a user can build a caching policy by turning on or off caching for given method:route:[]key:value,...]
   class Analysis
-    attr_reader :path, :request_method, :status, :count
+    attr_reader :host, :path, :request_method, :status, :count
 
     def initialize(last_req_tracking, trace)
-      req ||= Rack::Request.new(trace.request.headers)
+      req = Rack::Request.new(trace.request.headers)
       @path = req.path
+      @host = trace.host
       @request_method = trace.request_method
       @count = (last_req_tracking&.count || 0) + 1
       @status = last_req_tracking&.status || {}
       hashes = @status.fetch(trace.status) {h = {}; @status[trace.status] = h; h}
       last_cachable_request = hashes.fetch(trace.hash) {nil}
       hashes[trace.hash] = CachableRequest.new(last_cachable_request, trace)
+    end
+
+    def query_string
+      ""
+    end
+
+    def has_header?(key)
+      headers.has_key?(key)
+    end
+
+    def headers
+      {}
     end
 
     def score
@@ -37,17 +50,28 @@ module Screamin
       attr_reader :response
       def_delegator :response, :headers, :response_headers
 
-
       def initialize(last_cachable_request, trace)
         @hash = trace.response.hash
         @status = trace.response.status
-        req = Rack::Request.new(trace.request.headers)
         @hits = (last_cachable_request&.hits || 0) + 1
         @first_at = last_cachable_request&.first_at || trace.response.time
         @last_at = trace.response.time
         @request = Request.new(last_cachable_request&.request, trace.request)
         @response = Response.new(last_cachable_request&.response, trace.response)
       end
+
+      def query_string
+        Rack::Utils.build_nested_query(query_params)
+      end
+
+      def headers
+        request_headers
+      end
+
+      def has_header?(key)
+        headers.has_key?(key)
+      end
+
 
       class Request
         attr_reader :request_method, :query_params, :headers, :cookies, :session
@@ -61,6 +85,7 @@ module Screamin
           @session = prepare_params(last_request&.session, trace_request.session)
         end
 
+
         private
 
         def prepare_query_params(query_string)
@@ -69,8 +94,6 @@ module Screamin
 
         def filter_headers(headers)
           Hash[*(headers).select {|k, v| k.start_with? 'HTTP_'}
-                    .collect {|k, v| [k.sub(/^HTTP_/, ''), v]}
-                    .collect {|k, v| [k.split('_').collect(&:capitalize).join('-'), v]}
                     .reject {|k, _| k == 'Cookie'}
                     .sort
                     .flatten]
@@ -100,16 +123,19 @@ module Screamin
 
       class RequestParam
         attr_reader :values, :hits
+        attr_accessor :cache_key
+        alias cache_key? cache_key
 
         def initialize(last_req_param, value:)
           @hits = (last_req_param&.hits || 0) + 1
           @values = last_req_param&.values || []
           @values << value
           @values.uniq!
+          @cache_key = false
         end
 
         def relevance
-          1.0 - @values.size.to_f / @hits
+          @values.size.to_f / @hits
         end
       end
 

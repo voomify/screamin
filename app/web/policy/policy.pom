@@ -6,7 +6,7 @@ Voom::Presenters.define(:policy, namespace: :screamin) do
   attach :header
   attach :nav
 
-  page_title 'Policy'
+  page_title "#{app_name}:#{env_name} Policy"
 
   helpers do
     def empty_state
@@ -40,7 +40,7 @@ Voom::Presenters.define(:policy, namespace: :screamin) do
               switch name: :toggle_policy_active, checked: policy.active?, position: :right do
                 tooltip "Turn on/off the policy caching. Turning this off will STOP all caching."
                 event :change do
-                  posts command_path(:toggle_policy)
+                  posts command_path(:toggle_policy, app_name: app_name, env_name: env_name)
                 end
               end
             end
@@ -50,15 +50,16 @@ Voom::Presenters.define(:policy, namespace: :screamin) do
             card do
               grid padding: :none do
                 column 11 do
-                  attributes(strategy, :active)
-                  attributes(strategy.cache_key, :method, :path, :query_keys, :header_keys, :session_keys)
-                  attributes(strategy, :options)
+                  attributes(strategy, :host, :path, :method, :active, :options)
+                  strategy.cache_keys.each do |cache_key|
+                    attributes(cache_key, :query_keys, :header_keys, :session_keys, :cookies)
+                  end
                 end
                 column 1 do
                   switch name: :toggle_strategy_active, checked: strategy.active?, position: :right do
                     tooltip "Turn on/off the caching for this strategy."
                     event :change do
-                      posts command_path(:toggle_policy_strategy, key: strategy.key)
+                      posts command_path(:toggle_policy_strategy, key: strategy.key, app_name: app_name, env_name: env_name)
                     end
                   end
                 end
