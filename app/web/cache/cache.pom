@@ -11,8 +11,8 @@ Voom::Presenters.define(:cache, namespace: :screamin) do
           image 'screamin/images/policy.svg', width: '100%'
         end
         column 6, padding: :none do
-                  bullets
-                end
+          bullets
+        end
       end
     end
   end
