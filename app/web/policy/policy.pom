@@ -16,6 +16,9 @@ Voom::Presenters.define(:policy, namespace: :screamin) do
           body "To add one, turn on [analysis](#{presenters_path(:analysis)}) and add a cache strategy."
           image 'screamin/images/policy.svg', width: '100%'
         end
+        column 6, padding: :none do
+          bullets
+        end
       end
     end
 

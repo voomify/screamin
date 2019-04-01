@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   # spec.extensions    = ["ext/screamin/extconf.rb"]
   spec.add_dependency "dry-configurable", "~> 0.7.0"
-  spec.add_dependency "prefatory"
+  spec.add_dependency "prefatory", "~> 0.1.2"
   # These are optional runtime dependencies
   spec.add_development_dependency "voom-presenters"
   # Actual development depenedencies

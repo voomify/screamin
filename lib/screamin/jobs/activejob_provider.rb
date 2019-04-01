@@ -1,11 +1,11 @@
 require 'active_job'
 require 'screamin/jobs/analyze_requests'
-require_relative '../helpers/app'
+require 'screamin/helpers/app_name'
 
 module Screamin
   module Jobs
     class ActivejobProvider
-      include Helpers::AppName
+      include Screamin::Helpers::AppName
 
       def initialize(options)
         @options = options || {}

@@ -19,6 +19,10 @@ module Screamin
       hashes[trace.hash] = CachableRequest.new(last_cachable_request, trace)
     end
 
+    def session
+      {}
+    end
+
     def query_string
       ""
     end

@@ -49,9 +49,9 @@ module Screamin
         output << part
       end
 
-      debug '==============================================',
-            output,
-            '=============================================='
+      # debug '==============================================',
+      #       output,
+      #       '=============================================='
 
       if trace_request
         traces << [Time.now, cache_hit, result[0], result[1], Digest::MD5.hexdigest(output)]

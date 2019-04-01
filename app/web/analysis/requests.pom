@@ -10,6 +10,9 @@ Voom::Presenters.define(:requests, namespace: :screamin) do
         column 6, padding: :none do
           image 'screamin/images/no-data.svg', width: '100%'
         end
+        column 6, padding: :none do
+                  bullets
+                end
       end
     end
   end

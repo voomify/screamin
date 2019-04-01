@@ -20,7 +20,7 @@ module Screamin
   setting :jobs do
     setting :provider # :sidekiq or :activejob
     setting :options
-    setting :queue, :screamin
+    setting :queue, :default
   end
   setting :app do
     setting :name, ENV['SCREAMIN_APP_NAME'] # The name of the app. Automatically uses Rails app name if running Rails.

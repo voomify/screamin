@@ -10,6 +10,9 @@ Voom::Presenters.define(:cache, namespace: :screamin) do
           title 'Not Implemented yet'
           image 'screamin/images/policy.svg', width: '100%'
         end
+        column 6, padding: :none do
+                  bullets
+                end
       end
     end
   end

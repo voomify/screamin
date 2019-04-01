@@ -14,6 +14,9 @@ Voom::Presenters.define(:index, namespace: :screamin) do
           body "To add one, add the screamin gem to the Gemfile of an app and start it up."
           image 'screamin/images/policy.svg', width: '100%'
         end
+        column 6, padding: :none do
+          bullets
+        end
       end
     end
   end

@@ -2,9 +2,7 @@ require 'prefatory/storage/discover'
 require 'prefatory/config'
 
 # Map prefatory storage key prefix into screamin
-Prefatory.configure do |config|
-  config.keys.prefix = 'screamin'
-end
+Prefatory.config.keys.prefix = 'screamin'
 
 module Screamin
   module Storage

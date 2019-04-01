@@ -12,10 +12,12 @@ module Screamin
         if params['cache']
           s = policy.add_strategy(domain, method, path)
           if params['cache_keys']
-            cache_keys = params['cache_keys'].map do |json|
+            cache_keys = {}
+            params['cache_keys'].map do |json|
               key, value = JSON.parse(json)
-              [key.to_sym, value]
-            end.to_h
+              cache_keys.fetch(key.to_sym){cache_keys[key.to_sym]=[]}
+              cache_keys[key.to_sym] << value
+            end
             s.add_cache_key(cache_keys)
           end
         else

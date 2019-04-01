@@ -1,0 +1,24 @@
+#bullets ul {
+    list-style: none;
+    padding: 0;
+}
+
+#bullets li {
+    padding-left: 1.3em;
+}
+
+#bullets li:before {
+    display: inline-block;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    content: "\f197";
+    display: inline-block;
+    margin-left: -1.3em; /* same as padding-left set on li */
+    margin-right: 10px;
+    width: 1.3em; /* same as padding-left set on li */
+    color: #6C63FF;
+}
